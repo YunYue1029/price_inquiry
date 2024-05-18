@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Price</title>
+    <link rel="stylesheet" href="stylesheets/style.css">
+</head>
+<body>
+    <h1>
+        rice_price(2024-05-18~2024-04-19)
+    </h1>
+    <form id="price_form">
+        <label for="day">Day(YYYY/MM/DD):</label>
+        <input type="text" id="day" name="day"><br></br>
+        <input type="submit" value="send">
+    </form>
+    <p id="log"></p>
+    <script>
+        document.getElementById("price_form").addEventListener("submit",async (e)=>{
+            e.preventDefault();
+            const day = document.getElementById("day").value;
+
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) {
+                document.getElementById('log').innerText = 'Invalid date format. Use YYYY-MM-DD.';
+                return;
+            }
+
+            // 日期範圍檢查
+            const inputDate = new Date(day);
+            const startDate = new Date('2024-04-19');
+            const endDate = new Date('2024-05-18');
+
+            if (inputDate < startDate || inputDate > endDate) {
+                document.getElementById('log').innerText = 'Date is out of range. Enter a date between 2024-04-19 and 2024-05-18.';
+                return;
+            }
+
+            const response = await fetch("/api",{
+                method: 'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify({ YMD: day })
+            })
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('log').innerText = JSON.stringify(data, null, 2);
+            } else {
+                const error = await response.text();
+                document.getElementById('log').innerText = error;
+            }
+        })
+    </script>
+</body>
+</html>
